@@ -3,17 +3,16 @@ const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
   mode: 'production',
-  entry: './main/requestProcessor.js',
+  entry: './src/index.js',
 
   target: 'node',
 
   externals: [nodeExternals()],
 
   output: {
-    path: path.resolve('server-build'),
-    filename: 'processor.js',
-    library: 'processor',
-    libraryTarget: 'umd',
+    path: path.resolve('dist'),
+    filename: 'index.js',
+    libraryTarget: 'commonjs2',
   },
 
   module: {

@@ -1,4 +1,4 @@
-const processor = require("../server-build/processor");
+const processor = require("ts_email_editor-server");
 
 const allowCors = (fn) => async (req, res) => {
   res.setHeader("Access-Control-Allow-Credentials", true);
@@ -18,7 +18,7 @@ const allowCors = (fn) => async (req, res) => {
 };
 
 const handler = (req, res) => {
-  const response = processor.default(req.body.app);
+  const response = processor.render(req.body.app);
   res.statusCode = 200;
   res.setHeader("content-type", "text/plain");
   // Send the rendered page back to the client.

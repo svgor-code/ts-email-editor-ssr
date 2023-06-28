@@ -86,7 +86,7 @@ function renderFullPage(html1, css1, bodyBgColor, bodyBgImage) {
   `;
 }
 
-export default function handleRender(app) {
+export function render(app) {
   const sheets = new ServerStyleSheets();
   const { jsx, bodyBgColor, bodyBgImage } = generateJSX(app);
   // Render the component to a string.
@@ -106,3 +106,4 @@ export default function handleRender(app) {
   const css = sheets.toString();
   return renderFullPage(html, css, bodyBgColor, bodyBgImage);
 }
+
