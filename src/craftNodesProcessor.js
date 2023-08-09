@@ -13,15 +13,16 @@ import {
   VideoExport,
   CustomDividerExport,
   ResizerExport,
+  SnippetExport,
 } from "./exportComponents/index.js";
 import { BodyWrapperExport } from "./exportComponents/BodyWrapper/BodyWrapperExport.js";
 
 var __assign =
   (this && this.__assign) ||
-  function() {
+  function () {
     __assign =
       Object.assign ||
-      function(t) {
+      function (t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
           s = arguments[i];
           for (var p in s)
@@ -33,11 +34,11 @@ var __assign =
   };
 var __importDefault =
   (this && this.__importDefault) ||
-  function(mod) {
+  function (mod) {
     return mod && mod.__esModule ? mod : { default: mod };
   };
 
-var RESOLVERS = {
+export var RESOLVERS = {
   Text: TextExport,
   Container: ContainerExport,
   Button: ButtonExport,
@@ -47,13 +48,16 @@ var RESOLVERS = {
   CustomDivider: CustomDividerExport,
   Resizer: ResizerExport,
   BodyWrapper: BodyWrapperExport,
+  Snippet: SnippetExport,
 };
+
 function getNodeById(nodes, id) {
-  return lodash.find(nodes, function(node) {
+  return lodash.find(nodes, function (node) {
     return node.id === id;
   });
 }
-var deserializeNodes = function(nodes, id, sorted) {
+
+var deserializeNodes = function (nodes, id, sorted) {
   if (id === void 0) {
     id = "ROOT";
   }
@@ -67,10 +71,10 @@ var deserializeNodes = function(nodes, id, sorted) {
     throw new Error("Could not find node " + id);
   }
   sorted.push(__assign({ id: id }, node));
-  lodash.each(node.nodes, function(n) {
+  lodash.each(node.nodes, function (n) {
     sorted.push.apply(sorted, deserializeNodes(nodes, n));
   });
-  lodash.each(node.linkedNodes, function(n) {
+  lodash.each(node.linkedNodes, function (n) {
     sorted.push.apply(sorted, deserializeNodes(nodes, n));
   });
   return sorted;
@@ -94,14 +98,14 @@ function getDescendants(nodes, id, deep, includeOnly) {
       if (includeOnly !== "childNodes") {
         // Include linkedNodes if any
         var linkedNodes = node.linkedNodes;
-        lodash.each(linkedNodes, function(nodeId) {
+        lodash.each(linkedNodes, function (nodeId) {
           descendants.push(nodeId);
           descendants = appendChildNode(nodeId, descendants, depth + 1);
         });
       }
       if (includeOnly !== "linkedNodes") {
         var childNodes = node.nodes;
-        lodash.each(childNodes, function(nodeId) {
+        lodash.each(childNodes, function (nodeId) {
           descendants.push(nodeId);
           descendants = appendChildNode(nodeId, descendants, depth + 1);
         });
@@ -111,20 +115,21 @@ function getDescendants(nodes, id, deep, includeOnly) {
     return descendants;
   }
   return lodash.compact(
-    lodash.map(appendChildNode(id), function(nid) {
+    lodash.map(appendChildNode(id), function (nid) {
       return getNodeById(nodes, nid);
     })
   );
 }
 function renderNode(nodes, resolver, nodeId, key) {
   var node = getNodeById(nodes, nodeId);
+  console.log(node, nodeId);
   if (!node) {
     throw new Error("Could not find node with id " + nodeId);
   }
   var resolvedComponent = RESOLVERS[node.type.resolvedName];
 
   var descendants = getDescendants(nodes, nodeId);
-  var children = lodash.map(descendants, function(descendant, index) {
+  var children = lodash.map(descendants, function (descendant, index) {
     return renderNode(nodes, resolver, descendant.id, index);
   });
 
@@ -138,14 +143,23 @@ function renderNode(nodes, resolver, nodeId, key) {
 
   return tmp;
 }
-var renderNodesToJSX = function(nodes, resolver, nodeId) {
-  return renderNode(nodes, resolver, nodeId, 12200);
+
+export const renderNodesToJSX = function (
+  nodes,
+  resolver,
+  nodeId,
+  key = 12200
+) {
+  return renderNode(nodes, resolver, nodeId, key);
 };
-export function generateJSX(craftJsNodes) {
-  var nodes = deserializeNodes(craftJsNodes);
+
+export function generateJSX(craftJsNodes, key = 12200) {
+  const nodes = deserializeNodes(craftJsNodes);
   const bodyBackgroundColor = craftJsNodes["ROOT"].props.style.backgroundColor;
   const bodyBackgroundImage = craftJsNodes["ROOT"].props.style.backgroundImage;
-  var jsx = renderNodesToJSX(nodes, RESOLVERS, "ROOT");
+
+  const jsx = renderNodesToJSX(nodes, RESOLVERS, "ROOT", key);
+
   return {
     jsx: jsx,
     bodyBgColor: bodyBackgroundColor,

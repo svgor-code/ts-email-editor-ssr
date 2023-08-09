@@ -6,3 +6,4 @@ export * from "./Image/ImageExport";
 export * from "./Text/TextExport";
 export * from "./Video/VideoExport";
 export * from "./Divider/DividerExport";
+export * from "./Snippet/SnippetExport";
